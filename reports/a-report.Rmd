@@ -1,17 +1,65 @@
 ---
-title: "REPLACE ME"
-output:
-    html_document:
-    df_print: paged
+title: "Alguns questionamentos a cerca da movimentação de Tweets entre os parlamentares"
 theme: sandstone
+output:
+  html_document: null
+  pdf_document: default
+  df_print: paged
 ---
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 source(here::here("code/lib.R"))
+library(gridExtra)
 theme_set(theme_bw())
 ```
-
+### Breve introdução
+Como sabemos a eleição de 2018 ficou marcada por vários pontos polêmicos e um desses pontos está o uso das redes sociais como "arma" de promoção, com campanhas cada vez mais voltadas para redes sociais como: Facebook, Twitter e Instagram, dentro desse escopo questionaremos se houve talvez a utilização de algum tipo de impulsionamento ilegal ou seja uso de bots, que são contas fakes para impulsionar com engajamentos falsos, assim promovendo a popularidade com curtidas e retweets. Nesse breve trabalho, procuramos encontrar "outliers", alguns comportamentos fora da curva para num futuro próximo(quem sabe?), investigar e analisar mais afundo dentro desse escopo aqui gerado..
 ```{r read}
 atividade = read_projectdata()
+options(scipen=5)
 ```
+### Os parlamentares que possuem mais tweets também possuem um engajamento relevante?
+```{r}
+atividade %>% 
+    ggplot(aes(x = engaj_total, y=n_proprio, colour=casa)) + 
+     geom_point() 
+```
+
+
+Conclusão: Como o objetivo aqui é encontrar pontos fora da curva, para o escopo dessa visualização a tendência seria ver valores mais proximos do meio ou do canto esquerdo(se levarmos em conta a orientação x e y com quadrantes, seria o terceiro quadrante), existem pontos bem distantes, que representam número de tweets baixo com valores de engajamento alto, ou seja, não tem tanta participação dentro dessa rede social, mas, seus tweets possui engajamento alto. Também podemos concluir que de alguma forma os deputados possuem "mais pontos fora da curva"
+
+### De quais estados pertencem os congressistas com os maiores engajamentos nos seus tweets?
+```{r}
+atividade %>% 
+    ggplot(aes(x = UF , y=engaj_total)) + 
+      geom_bar(stat="identity") + 
+      coord_flip()
+```
+
+
+Conclusão: Os parlamentares da região nordeste tem uma quantidade de engajamento nas redes pequeno, não podemos concluir que isso afete, mas se formos pensar que exatamente os estados com maiores engajamentos escolheram "um dos lados" e a região nordeste "um outro caminho", podemos nos questionar pelo menos isso de alguma forma afetou esses estados? Bahia é um estado gigante e mesmo assim o engajamentos relacionados a seus parlamentares foram pouco, não podemos concluir que há um efeito de causalidade aqui mas podemos ao menos questionar.
+
+### A quantidade de seguidores de alguma forma está atrelada a quantidade de engajamento, ou seja, sao diretamente proporcionais?
+```{r}
+atividade %>% 
+    ggplot(aes(x = engaj_total, y=seguidores, colour=casa)) + 
+     geom_point() 
+```
+
+
+Conclusão: Mais uma vez, estranhamente existem parlamentares com poucos seguidores e engajamentos muito acima do que deveria ser para sua quantidade de seguidores e mais uma vez pertence a câmara dos deputados.
+
+### Tomando por regra a utlização dos dois maiores partidos e de certa forma dentro dos moldes atuais da politica, duas direções contrárias, existe algum ponto que nos chame atenção com relacão a quantidade de seguidores x engajamento total?
+```{r}
+principais = atividade %>% 
+    filter(partido == "PT" | partido == "PSL" )
+principais %>% 
+    ggplot(aes(x = engaj_total, y=seguidores, colour=partido)) + 
+     geom_point() 
+```
+
+
+
+
+Conclusão: Existe um ponto que chama muita atenção, uma quantidade pifia de seguidores com o maior engajamento de todo o dataset o que no minimo é estranho, dentre os dados voltado para o partido PT podemos ver que existe um comportamento diferente do outro respectivo partido, e até possui outliers que não são no momento tão interessantes, que seria uma quantidade grande de seguidores mas com um engajamento bem abaixo. Claro que não podemos sentenciar um partido ou outro, e nessas analises não levamos em consideração retweets de criticas e etc. 
